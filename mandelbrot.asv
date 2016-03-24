@@ -1,0 +1,29 @@
+%% Define the region.
+   x = 0: 0.001: 0.8;
+   y = x';
+   
+%% Create the two-dimensional complex grid using Tony's indexing trick.
+   n = length(x);
+   e = ones(n,1);
+   z0 = x(e,:) + i*y(:,e);
+
+%% Or, do the same thing with meshgrid.
+   [X,Y] = meshgrid(x,y);
+   z0 = X + i*Y;
+
+%% Initialize the iterates and counts arrays.
+   z = zeros(n,n);
+   c = zeros(n,n);
+
+%% Here is the Mandelbrot iteration.
+   depth = 300;
+   for k = 1:depth
+      [z, c] = step(z0, z, c, k);
+   end
+
+%% Create an image from the counts.
+   image(c)
+   axis image
+
+%% Colors
+   colormap(flipud(jet(depth)))

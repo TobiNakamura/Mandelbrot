@@ -1,0 +1,27 @@
+function explore(a, b, x, y)
+    switch nargin
+        case 2
+            interval = [0 0.8]
+        case 4
+            z0 = getMAP;
+%             curMax = real(z0(1, end))
+%             curMin = real(z0(1, 1))
+%             r = (curMax-curMin)/4
+%             c = z0(y, x)
+            r=100;
+            min = z0(y, )
+            interval = [-r,r]
+    end
+    
+    setMAP(generate(interval, 300, 300, a, b));
+end
+
+function setMAP(val)
+    global MAP
+    MAP = val;
+end
+
+function r = getMAP
+    global MAP
+    r = MAP;
+end

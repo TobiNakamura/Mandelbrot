@@ -1,0 +1,16 @@
+n=10
+depth=2000;
+loc=0.350907738170318;
+x = linspace(0.1, 0.8, n);
+z0 = x + i*x;
+z=zeros(depth,n);
+
+for k=2:depth
+    z(k,:)=z(k-1,:).^2+z0;
+end
+hold on
+grid on
+for k=2:n
+    plot(abs(z(:,k)))
+end
+axis([0 depth 0 2])
