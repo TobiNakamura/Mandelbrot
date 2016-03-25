@@ -40,7 +40,7 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
       
       curNumDiverged = length(find(c==k-1));
       if curNumDiverged ~= 0 && firstDiverge == 0 %identify the first diverged pixel
-          firstDiverge = k;
+          firstDiverge = k
       elseif curNumDiverged < endVal && curNumDiverged < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
           depth = k
           break
@@ -73,10 +73,10 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
     map = colormap(flipud(jet(depth-firstDiverge)));
     
     if nargin >= 6 %if id# indicated in argument, save img
-        [img, newMap] = imapprox(mandelImg, map, 256);
-        imwrite(img, newMap, strcat('Frames/', int2str(num), '.png'));
-    else
-        hp = impixelinfo; %create mouse hover UI
-        set(hp,'Position',[5 1 300 20]);
+        imwrite(mandelImg, map, strcat('Frames/', int2str(num), '.png'));
     end
+    
+    
+    hp = impixelinfo;
+    set(hp,'Position',[5 1 300 20]);
 end
