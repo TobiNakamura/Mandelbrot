@@ -14,7 +14,6 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
     
     z = zeros(n,n);
     c = zeros(n,n);
-    active = zeros(n,n);
     endVal = 0.0003*courseGrain^2;
     numDiverged = 0;
     firstDiverge = 0;
@@ -24,9 +23,8 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
           z_bef = z;
       end
       
-      [z, c, a] = step(z0, z, c, k, active);
-      active = a;
-      curNumDiverged = length(find(c==k-1))
+      [z, c] = step(z0, z, c, k);
+      curNumDiverged = length(find(c==k-1));
       if curNumDiverged ~= 0 && firstDiverge == 0
           firstDiverge = k
       elseif curNumDiverged < endVal && curNumDiverged < numDiverged
