@@ -11,7 +11,7 @@ function animate()
     
     
     for k=1:300
-        z0 = generate(bounds, 300, 5000, a, b);
+        z0 = generate(bounds, 300, 5000, a, b, k);
         drawnow;
         x_scale = (bounds(2)-bounds(1))/rate;
         y_scale = (bounds(4)-bounds(3))/rate;

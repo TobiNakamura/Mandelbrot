@@ -1,4 +1,4 @@
-function showDiff()
+efunction showDiff()
     depth = [5 7 11 12 13 14 15 20 30 100]
     interval = [0 0.8]
 %     depth = [30 40 50 60 70 80 100 200 300]
