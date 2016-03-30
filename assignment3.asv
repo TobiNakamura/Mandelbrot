@@ -1,11 +1,9 @@
 %questions:
 %can we using video editing tool?
-%do we have access to matlab parallel compute
 
 %todo:
 %modify to make variabble aspect ratio
 %find good ration between re rendering and zooming
-%algorithm for going from one locations to another with minimal rendering
 
 
 
