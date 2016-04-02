@@ -43,8 +43,9 @@
 function frameArray = assignment3
 
 MAX_FRAMES = 10; % you can change this and consider increasing it.
-RESOLUTION = 2024; % you can change this and consider increasing it.
+RESOLUTION = 512; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
+MAX_DEPTH = 1000;
 
 WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
@@ -56,11 +57,6 @@ end
 if WRITE_VIDEO_TO_FILE
     openVideoFile
 end
-
-% Colors
-depth = 32; % you will probably need to increase this, maybe dynamically.
-CMAP=flipud(jet(depth)); %change the colormap as you want.
-
 %preallocate struct array
 %frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
 
@@ -150,17 +146,27 @@ end
         
         % Here is the Mandelbrot iteration.
         c(abs(z) < 2) = 1;
+        endVal = 0.0003*RESOLUTION*RESOLUTION; %set termination condition to be when 0.03% of total pixel number 
+        numDiverged = 0; %hold number of pixels that diverged in the previous iteration
+        firstDiverge = 0; %holds the iteration number for when the first pixel diverged
+        depth = 0;
         %don't show warning from mex invocation.
         WarningOff
-        for k = 2:depth
+        for k = 2:MAX_DEPTH
             [z,c] = mandelbrot_step(z,c,z0,k);
-            % mandelbrot_step is a c-mex file that does one step of:
-            %  z = z.^2 + z0;
-            %  c(abs(z) < 2) = k;
+            
+            curNumDiverged = length(find(c==k-1));
+            if curNumDiverged ~= 0 && firstDiverge == 0 %identify the first diverged pixel
+              firstDiverge = k;
+            elseif curNumDiverged < endVal && curNumDiverged < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
+              depth = k
+              break
+            end
+            numDiverged = curNumDiverged;
         end
         
         % create an image from c and then convert to frame.  Use cmap
-        frame = im2frame(ind2rgb(c, CMAP));
+        frame = im2frame(ind2rgb(c, colormap(flipud(jet(depth-firstDiverge)))));
         if WRITE_VIDEO_TO_FILE & ~DO_IN_PARALLEL
             writeVideo(vidObj, frame);
         end
