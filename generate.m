@@ -70,7 +70,7 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
     mandelImg = c-firstDiverge*ones(n,n); %initial iterations can see no divergence, cut out those values to maintain dynamic range of coloring
     image(mandelImg);
     axis image;
-    map = colormap(flipud(jet(depth-firstDiverge)));
+    map = colormap(flipud(winter(depth-firstDiverge)));
     
     if nargin >= 6 %if id# indicated in argument, save img
         [img, newMap] = imapprox(mandelImg, map, 256);

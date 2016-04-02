@@ -165,9 +165,11 @@ end
             %  z = z.^2 + z0;
             %  c(abs(z) < 2) = k;
         end
+      
+        
         
         % create an image from c and then convert to frame.  Use cmap
-        frame = im2frame(ind2rgb(c-firstDiverge*ones(n,n),  colormap(flipud(winter(depth-firstDiverge))) ));
+        frame = im2frame(ind2rgb(c, CMAP));
         if WRITE_VIDEO_TO_FILE & ~DO_IN_PARALLEL
             writeVideo(vidObj, frame);
         end
