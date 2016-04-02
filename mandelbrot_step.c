@@ -2,7 +2,7 @@
 #include "mex.h"
 void mexFunction( int nlhs, mxArray *plhs[], 
 		  int nrhs, const mxArray *prhs[] )
-
+/*        left hand side              right hand side
 /* function [z,kz] = mandelbrot_step(z,kz,z0,d);
  * Take one step of the Mandelbrot iteration.
  * Complex arithmetic:
@@ -32,13 +32,27 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[1] = prhs[1];
 
     n = mxGetN(prhs[0]);
-    for (j=0; j<n*n; j++) {
-        if (kz[j] == d-1) {
-            t = x[j];
-            x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
-            y[j] = 2*t*y[j] + v[j];
-            if (x[j]*x[j] + y[j]*y[j] < 4) {
-                kz[j] = d;
+    
+    if (1) {
+        for (j=n*n; j--; ) {
+            if (kz[j] == d-1) {
+                t = x[j];
+                x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
+                y[j] = (t+t)*y[j] + v[j];
+                if (x[j]*x[j] + y[j]*y[j] < 4) {
+                    kz[j] = d;
+                }
+            }
+        }
+    } else {
+        for (j=0; j<n*n; j++) {
+            if (kz[j] == d-1) {
+                t = x[j];
+                x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
+                y[j] = 2*t*y[j] + v[j];
+                if (x[j]*x[j] + y[j]*y[j] < 4) {
+                    kz[j] = d;
+                }
             }
         }
     }

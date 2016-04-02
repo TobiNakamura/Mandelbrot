@@ -11,16 +11,14 @@ function animate()
     
     rate = 7; %is inversely proportional to zooming speed, must be >=2
     zoomLength = 108; % number of zooming iterations
-    imageSize = 1000;
+    imageSize = 300;
     maxDepth = 5000; %incase generate() does not autoterminate
     
     bounds = center + 0.8*[-1 1 -1 1]; %set initial bounds
     
-    low=0;
     
     for k=1:zoomLength
-        k
-        z0 = generate(bounds, imageSize, maxDepth, a, b, k);
+        z0 = generate(bounds, imageSize, maxDepth, a, b);
         drawnow;
         x_scale = (bounds(2)-bounds(1))/rate;
         y_scale = (bounds(4)-bounds(3))/rate;

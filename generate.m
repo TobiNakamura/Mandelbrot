@@ -42,7 +42,7 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
       if curNumDiverged ~= 0 && firstDiverge == 0 %identify the first diverged pixel
           firstDiverge = k;
       elseif curNumDiverged < endVal && curNumDiverged < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
-          depth = k
+          depth = k;
           break
       end
       numDiverged = curNumDiverged;
@@ -54,7 +54,7 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
         hist(1,k) = length(find(c==k));
     end
     
-    
+    %plots histogram of diffarencial map dependent on option
     subplot(diffFig);
     if exist('z_bef', 'var') == 0 %plots data for number of pixels diverged per iteration
         plot(hist);
@@ -75,6 +75,7 @@ function z0 = generate(interval, courseGrain, depth, brotFig, diffFig, num)
     if nargin >= 6 %if id# indicated in argument, save img
         [img, newMap] = imapprox(mandelImg, map, 256);
         imwrite(img, newMap, strcat('Frames/', int2str(num), '.png'));
+        imwrite(img, newMap, strcat('Frames/', int2str(num), '.png', 'BitDepth', 16));
     else
         hp = impixelinfo; %create mouse hover UI
         set(hp,'Position',[5 1 300 20]);

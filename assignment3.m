@@ -1,11 +1,15 @@
 %questions:
 %can we using video editing tool?
 %do we have access to matlab parallel compute
+%how do you optimize .c
+%can we have separete video rendering file, save frames as still, then
+%later writing them to video
 
 %todo:
 %modify to make variabble aspect ratio
 %find good ration between re rendering and zooming
 %algorithm for going from one locations to another with minimal rendering
+%extend color map to beyond 64 colors
 
 
 
@@ -38,12 +42,12 @@
 
 function frameArray = assignment3
 
-MAX_FRAMES = 256; % you can change this and consider increasing it.
-RESOLUTION = 512; % you can change this and consider increasing it.
+MAX_FRAMES = 10; % you can change this and consider increasing it.
+RESOLUTION = 2024; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
 
 WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
-DO_IN_PARALLEL = true; %change this as you like (true/false)
+DO_IN_PARALLEL = false; %change this as you like (true/false)
 
 if DO_IN_PARALLEL
     startClusterIfNeeded
