@@ -3,7 +3,6 @@
 
 #profile results
 *.html
-*.asv
 
 # Windows image file caches
 Thumbs.db
