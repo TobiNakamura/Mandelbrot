@@ -20,7 +20,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 { 
     double *x,*y,*u,*v,t; 
     unsigned short *kz,d;
-    int j,n; 
+    int j,n, m; 
     
     x = mxGetPr(prhs[0]); 
     y = mxGetPi(prhs[0]);
@@ -32,29 +32,31 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[1] = prhs[1];
 
     n = mxGetN(prhs[0]);
+    m = mxGetM(prhs[0]);
+
     
-    if (1) {
-        for (j=n*n; j--; ) {
-            if (kz[j] == d-1) {
-                t = x[j];
-                x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
-                y[j] = (t+t)*y[j] + v[j];
-                if (x[j]*x[j] + y[j]*y[j] < 4) {
-                    kz[j] = d;
-                }
-            }
-        }
-    } else {
-        for (j=0; j<n*n; j++) {
-            if (kz[j] == d-1) {
-                t = x[j];
-                x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
-                y[j] = 2*t*y[j] + v[j];
-                if (x[j]*x[j] + y[j]*y[j] < 4) {
-                    kz[j] = d;
-                }
+    for (j=n*m; j--; ) {
+        if (kz[j] == d-1) {
+            t = x[j];
+            x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
+            y[j] = (t+t)*y[j] + v[j];
+            if (x[j]*x[j] + y[j]*y[j] < 4) {
+                kz[j] = d;
             }
         }
     }
+
+    
+    
+//     for (j=0; j<n*m; j++) {
+//         if (kz[j] == d-1) {
+//             t = x[j];
+//             x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
+//             y[j] = 2*t*y[j] + v[j];
+//             if (x[j]*x[j] + y[j]*y[j] < 4) {
+//                 kz[j] = d;
+//             }
+//         }
+//     }
     return;
 }

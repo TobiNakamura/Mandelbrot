@@ -43,11 +43,13 @@
 function frameArray = assignment3
 
 MAX_FRAMES = 10; % you can change this and consider increasing it.
-RESOLUTION = 512; % you can change this and consider increasing it.
+HEIGHT = 200;
+WIDTH = 300;
+%RESOLUTION = 512; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 1000;
 
-WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
+WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
 
 if DO_IN_PARALLEL
@@ -66,11 +68,6 @@ STEP = DISTANCE/MAX_FRAMES; %how much to pan per step.
 iterateHandle = @iterate;
 
 tic % begin timing
-
-zoom=1.5;
-r0 = -2+0i;
-r1 = -1+0i;
-(frameNum-1)*zoom*(r1-r0)/abs(r1-r0);
         
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
@@ -128,14 +125,15 @@ end
         open(vidObj);
     end
 
-    function frame = iterate (frameNum, init)
+    function frame = iterate (frameNum)
         % you will need to change the next set of lines for sure.
-%         centreX = 0.5 - (frameNum-1) * STEP;
-%         centreY = 0;
-         zoom = 1.5;
-%         x = linspace(centreX - zoom, centreX + zoom, RESOLUTION);
-%         %you can modify the aspect ratio if you want.
-%         y = linspace(centreY - zoom, centreY + zoom, RESOLUTION);
+        centreX = 0.5 - (frameNum-1) * STEP;
+        centreY = 0;
+        domain = 1.5;
+        range = domain*HEIGHT/WIDTH;
+        x = linspace(centreX - domain, centreX + domain, WIDTH);
+        %you can modify the aspect ratio if you want.
+        y = linspace(centreY - range, centreY + range, HEIGHT);
 
         
         
@@ -151,11 +149,11 @@ end
         %in memory from z0 elements.
         
         % make c of type uint16 (unsigned 16-bit integer)
-        c = zeros(RESOLUTION, RESOLUTION, 'uint16');
+        c = zeros(HEIGHT, WIDTH, 'uint16');
         
         % Here is the Mandelbrot iteration.
         c(abs(z) < 2) = 1;
-        endVal = 0.0003*RESOLUTION*RESOLUTION; %set termination condition to be when 0.03% of total pixel number 
+        endVal = 0.0003*HEIGHT*WIDTH; %set termination condition to be when 0.03% of total pixel number 
         numDiverged = 0; %hold number of pixels that diverged in the previous iteration
         firstDiverge = 0; %holds the iteration number for when the first pixel diverged
         depth = 0;
@@ -164,7 +162,7 @@ end
         for k = 2:MAX_DEPTH
             [z,c] = mandelbrot_step(z,c,z0,k);
             
-            curNumDiverged = length(find(c==k-1));
+            curNumDiverged = length(find(c==k-1)); %build this into c
             if curNumDiverged ~= 0 && firstDiverge == 0 %identify the first diverged pixel
               firstDiverge = k;
             elseif curNumDiverged < endVal && curNumDiverged < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
@@ -175,7 +173,7 @@ end
         end
         
         % create an image from c and then convert to frame.  Use cmap
-        frame = im2frame(ind2rgb(c-uint16(firstDiverge*ones(RESOLUTION,RESOLUTION)), colormap(flipud(jet(depth-firstDiverge)))));
+        frame = im2frame(ind2rgb(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)), colormap(flipud(jet(depth-firstDiverge)))));
         if WRITE_VIDEO_TO_FILE & ~DO_IN_PARALLEL
             writeVideo(vidObj, frame);
         end
