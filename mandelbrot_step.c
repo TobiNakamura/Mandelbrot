@@ -19,8 +19,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
      
 { 
     double *x,*y,*u,*v,t; 
-    unsigned short *kz,d;
-    int j,n; 
+    unsigned short *kz, *num, d;
+    int j ,n, m;
+    int dim[] = {1, 1};
     
     x = mxGetPr(prhs[0]); 
     y = mxGetPi(prhs[0]);
@@ -30,31 +31,39 @@ void mexFunction( int nlhs, mxArray *plhs[],
     d = (unsigned short) mxGetScalar(prhs[3]);
     plhs[0] = prhs[0];
     plhs[1] = prhs[1];
-
-    n = mxGetN(prhs[0]);
+    plhs[2] = mxCreateNumericArray(2,dim,mxUINT32_CLASS,mxREAL);
+    num = mxGetData(plhs[2]);
+    *num = 0;
     
-    if (1) {
-        for (j=n*n; j--; ) {
-            if (kz[j] == d-1) {
-                t = x[j];
-                x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
-                y[j] = (t+t)*y[j] + v[j];
-                if (x[j]*x[j] + y[j]*y[j] < 4) {
-                    kz[j] = d;
-                }
-            }
-        }
-    } else {
-        for (j=0; j<n*n; j++) {
-            if (kz[j] == d-1) {
-                t = x[j];
-                x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
-                y[j] = 2*t*y[j] + v[j];
-                if (x[j]*x[j] + y[j]*y[j] < 4) {
-                    kz[j] = d;
-                }
+    n = mxGetN(prhs[0]);
+
+	m = mxGetM(prhs[0]);
+
+    if(1){
+    for (j=n*m; j--; ) {
+        if (kz[j] == d-1) {
+            t = x[j];
+            x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
+            y[j] = (t+t)*y[j] + v[j];
+            if (x[j]*x[j] + y[j]*y[j] < 4) {
+                kz[j] = d;
+            } else {
+                *num = *num+1;
             }
         }
     }
+    } else {
+        for (j=0; j<n*m; j++) {
+        if (kz[j] == d-1) {
+            t = x[j];
+            x[j] = x[j]*x[j] - y[j]*y[j] + u[j];
+            y[j] = 2*t*y[j] + v[j];
+            if (x[j]*x[j] + y[j]*y[j] < 4) {
+                kz[j] = d;
+            }
+        }
+    }
+    }
+    
     return;
 }
