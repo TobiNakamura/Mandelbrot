@@ -47,7 +47,7 @@ RESOLUTION = 512; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 1000;
 
-WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
+WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
 
 if DO_IN_PARALLEL
@@ -66,6 +66,12 @@ STEP = DISTANCE/MAX_FRAMES; %how much to pan per step.
 iterateHandle = @iterate;
 
 tic % begin timing
+
+zoom=1.5;
+r0 = -2+0i;
+r1 = -1+0i;
+(frameNum-1)*zoom*(r1-r0)/abs(r1-r0);
+        
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
         %evaluate function iterate with handle iterateHandle
@@ -95,6 +101,7 @@ else
     shg; % bring the figure to the top to be seen.
     movie(frameArray,1,FRAMERATE);
 end
+   
 
     function startClusterIfNeeded
         myCluster = parcluster('local');
@@ -104,7 +111,7 @@ end
             PHYSICAL_CORES = feature('numCores');
             LOGICAL_PER_PHYSICAL = 2; % "hyperthreads" per physical core
             NUM_WORKERS = (LOGICAL_PER_PHYSICAL + 1) * PHYSICAL_CORES
-            myCluster.NumWorkers = NUM_WORKERS;
+            myCluster.NumWorkers = 2;
             saveProfile(myCluster);
             disp('This may take a couple minutes when needed!')
             tic
@@ -121,14 +128,16 @@ end
         open(vidObj);
     end
 
-    function frame = iterate (frameNum)
+    function frame = iterate (frameNum, init)
         % you will need to change the next set of lines for sure.
-        centreX = 0.5 - (frameNum-1) * STEP;
-        centreY = 0;
-        zoom = 1.5;
-        x = linspace(centreX - zoom, centreX + zoom, RESOLUTION);
-        %you can modify the aspect ratio if you want.
-        y = linspace(centreY - zoom, centreY + zoom, RESOLUTION);
+%         centreX = 0.5 - (frameNum-1) * STEP;
+%         centreY = 0;
+         zoom = 1.5;
+%         x = linspace(centreX - zoom, centreX + zoom, RESOLUTION);
+%         %you can modify the aspect ratio if you want.
+%         y = linspace(centreY - zoom, centreY + zoom, RESOLUTION);
+
+        
         
         % the below might work okay but you can further optimize it.
         
@@ -166,7 +175,7 @@ end
         end
         
         % create an image from c and then convert to frame.  Use cmap
-        frame = im2frame(ind2rgb(c, colormap(flipud(jet(depth-firstDiverge)))));
+        frame = im2frame(ind2rgb(c-uint16(firstDiverge*ones(RESOLUTION,RESOLUTION)), colormap(flipud(jet(depth-firstDiverge)))));
         if WRITE_VIDEO_TO_FILE & ~DO_IN_PARALLEL
             writeVideo(vidObj, frame);
         end
