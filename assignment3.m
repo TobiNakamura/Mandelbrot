@@ -160,16 +160,15 @@ end
         %don't show warning from mex invocation.
         WarningOff
         for k = 2:MAX_DEPTH
-            [z,c] = mandelbrot_step(z,c,z0,k);
+            [z,c,d] = mandelbrot_step(z,c,z0,k);
             
-            curNumDiverged = length(find(c==k-1)); %build this into c
-            if curNumDiverged ~= 0 && firstDiverge == 0 %identify the first diverged pixel
+            if d ~= 0 && firstDiverge == 0 %identify the first diverged pixel
               firstDiverge = k;
-            elseif curNumDiverged < endVal && curNumDiverged < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
+            elseif d < endVal && d < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
               depth = k
               break
             end
-            numDiverged = curNumDiverged;
+            numDiverged = d;
         end
         
         % create an image from c and then convert to frame.  Use cmap
