@@ -9,11 +9,15 @@ realWidth = DEFAULT_ZOOM
 imgHeight = DEFAULT_ZOOM*HEIGHT/WIDTH
 initial = corners(path(1,1:2))
 final = corners(path(2,1:2))
-distance = path(2,1) - path(1,1)
-n=ceil(abs(distance/realWidth)-1)
+distance = path(2,1:2) - path(1,1:2)
+n=ceil(abs(distance)/realWidth-1)*2+2
 frames = ones(n, 4);
-for k=1:n
-    
+dir = distance/abs(distance)
+for k=2:n
+    frames(k) = corners(path(1,1:2)+dir*realWidth*k) %main frame
+    frames(k+1) = []
+    frames(k+2) = []
+    k=k+3
 end
 
 
