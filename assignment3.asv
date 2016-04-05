@@ -127,7 +127,7 @@ end
 
     function frame = iterate (frameNum, window)
         
-        %window = [1 1 0;]
+        %window = [1 1 1 1]
         
         % you will need to change the next set of lines for sure.
         centreX = window(1); %0.5 - (frameNum-1) * STEP;
