@@ -1,16 +1,15 @@
 function frames()
-path = [0 0 1; -3 -3 1];
-WIDTH = 300;
-HEIGHT = 200;
-DEFAULT_ZOOM = 1; %sets the difference in real value
+path = [-1 0 1; -0.75 0.1 0.001];
 numFrames = 5;
 full_path = zeros(numFrames, 3);
 full_path(1, :) = path(1, :);
 full_path(end, :) = path(2, :);
 vect = (path(2,:) - path(1,:))/(numFrames-1);
+interp1([1 5], [-1 -0.75], [2 3 4])
 for k=2:(numFrames-1)
     full_path(k,:) = full_path(k-1,:)+vect;
 end
+full_path
 
     function c = corners(center)
         matrix = [center(1)*ones(4,1)+[-1 1 -1 1]'*realWidth/2 center(2)*ones(4,1)+[1 1 -1 -1]'*imgHeight/2];
