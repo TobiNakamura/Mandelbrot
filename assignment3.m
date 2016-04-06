@@ -49,7 +49,7 @@ WIDTH = 300;
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 1000;
 
-WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
+WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
 
 if DO_IN_PARALLEL
@@ -68,6 +68,22 @@ STEP = DISTANCE/MAX_FRAMES; %how much to pan per step.
 iterateHandle = @iterate;
 
 tic % begin timing
+
+path = [-1 0 1; -0.75 0.1 0.001];
+numFrames = 100;
+full_path = zeros(numFrames, 3);
+full_path(1, :) = path(1, :);
+full_path(end, :) = path(2, :);
+vect = (path(2,:) - path(1,:))/(numFrames-1);
+for k=2:(numFrames-1)
+    full_path(k,:) = full_path(k-1,:)+vect;
+end
+MAX_FRAMES = numFrames;
+
+    function c = corners(center)
+        matrix = [center(1)*ones(4,1)+[-1 1 -1 1]'*realWidth/2 center(2)*ones(4,1)+[1 1 -1 -1]'*imgHeight/2];
+        c = [matrix(1, :) matrix(2, :) matrix(3, :) matrix(4, :)];
+    end
         
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
@@ -78,9 +94,9 @@ else
     for frameNum = 1:MAX_FRAMES
         if WRITE_VIDEO_TO_FILE
             %frame has already been written in this case
-            iterate(frameNum);
+            iterate(frameNum, full_path(frameNum, :));
         else
-            frameArray(frameNum) = iterate(frameNum);
+            frameArray(frameNum) = iterate(frameNum, full_path(frameNum, :));
         end
     end
 end
@@ -126,6 +142,7 @@ end
     end
 
     function frame = iterate (frameNum, window)
+<<<<<<< HEAD
         
         %window = [1 1 0;]
         
@@ -133,6 +150,11 @@ end
         centreX = window(1); %0.5 - (frameNum-1) * STEP;
         centreY = window(2); 
         domain = window(3); %1.5;
+=======
+        centreX = window(1); 
+        centreY = window(2); 
+        domain = window(3); 
+>>>>>>> master
         range = domain*HEIGHT/WIDTH;
         x = linspace(centreX - domain, centreX + domain, WIDTH);
         %you can modify the aspect ratio if you want.
