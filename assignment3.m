@@ -88,7 +88,7 @@ MAX_FRAMES = numFrames;
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
         %evaluate function iterate with handle iterateHandle
-        frameArray(frameNum) = feval(iterateHandle, frameNum);
+        frameArray(frameNum) = feval(iterateHandle, frameNum, full_path(frameNum, :));
     end
 else
     for frameNum = 1:MAX_FRAMES
