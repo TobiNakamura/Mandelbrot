@@ -142,7 +142,6 @@ end
     end
 
     function frame = iterate (frameNum, window)
-<<<<<<< HEAD
         
         %window = [1 1 0;]
         
@@ -150,11 +149,9 @@ end
         centreX = window(1); %0.5 - (frameNum-1) * STEP;
         centreY = window(2); 
         domain = window(3); %1.5;
-=======
         centreX = window(1); 
         centreY = window(2); 
         domain = window(3); 
->>>>>>> master
         range = domain*HEIGHT/WIDTH;
         x = linspace(centreX - domain, centreX + domain, WIDTH);
         %you can modify the aspect ratio if you want.
