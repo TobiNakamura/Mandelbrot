@@ -3,6 +3,7 @@
 
 #profile results
 *.html
+*.avi
 
 # Windows image file caches
 Thumbs.db
