@@ -34,7 +34,7 @@ function frameArray = assignment3
 
 MAX_FRAMES = 10; % you can change this and consider increasing it.
 HEIGHT = 300;
-WIDTH = 300;
+WIDTH = 500;
 %RESOLUTION = 512; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 10000;
@@ -100,45 +100,30 @@ for k = 1:numFrames
     full_path(2:2:newM, 1) = interp1(prev_path(:,1), 1.5:1:m, interpType);
     full_path(2:2:newM, 2) = interp1(prev_path(:,2), 1.5:1:m, interpType);
     full_path(2:2:newM, 3) = interp1(prev_path(:,3), 1.5:1:m, interpType);
-    prev_path = full_path
+    prev_path = full_path;
     
     clf
-hold on
-plot(path)
-plot(full_path)
-legend('path - real', 'path - img', 'path-zoom', 'full-real', 'full-img', 'full-zoom')
-
+    hold on
+    plot(path)
+    plot(full_path)
+    legend('path - real', 'path - img', 'path-zoom', 'full-real', 'full-img', 'full-zoom')
 end
 [m,~]=size(full_path);
 MAX_FRAMES = m;
-
-
-% full_path = zeros(numFrames, 3);
-% full_path(1, :) = path(1, :);
-% full_path(end, :) = path(2, :);
-% vect = (path(2,:) - path(1,:))/(numFrames-1);
-% for k=2:(numFrames-1)
-%     full_path(k,:) = full_path(k-1,:)+vect;
-% end
-% MAX_FRAMES = numFrames;
-
-    function c = corners(center)
-        matrix = [center(1)*ones(4,1)+[-1 1 -1 1]'*realWidth/2 center(2)*ones(4,1)+[1 1 -1 -1]'*imgHeight/2];
-        c = [matrix(1, :) matrix(2, :) matrix(3, :) matrix(4, :)];
-    end
+zoomMap = ones(1, 2);
         
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
         %evaluate function iterate with handle iterateHandle
-        frameArray(frameNum) = feval(iterateHandle, frameNum, full_path(frameNum, :));
+        frameArray(frameNum) = feval(iterateHandle, frameNum, full_path(frameNum, :), zoomMap);
     end
 else
     for frameNum = 1:MAX_FRAMES
         if WRITE_VIDEO_TO_FILE
             %frame has already been written in this case
-            iterate(frameNum, full_path(frameNum, :));
+            iterate(frameNum, full_path(frameNum, :), zoomMap);
         else
-            frameArray(frameNum) = iterate(frameNum, full_path(frameNum, :));
+            frameArray(frameNum) = iterate(frameNum, full_path(frameNum, :), zoomMap);
         end
     end
 end
@@ -183,7 +168,7 @@ end
         open(vidObj);
     end
 
-    function frame = iterate (frameNum, window)
+    function [frame, zoomMap] = iterate (frameNum, window, zoomMap)
         centreX = window(1); 
         centreY = window(2); 
         domain = 1/window(3); 
@@ -208,10 +193,9 @@ end
         
         % Here is the Mandelbrot iteration.
         c(abs(z) < 2) = 1;
-        endVal = 1%0.000001*HEIGHT*WIDTH; %set termination condition to be when 0.03% of total pixel number 
+        endVal = 1;%0.000001*HEIGHT*WIDTH; %set termination condition to be when 0.03% of total pixel number 
         numDiverged = 0; %hold number of pixels that diverged in the previous iteration
         firstDiverge = 0; %holds the iteration number for when the first pixel diverged
-        depth = 0;
         %don't show warning from mex invocation.
         WarningOff
         for w = 2:MAX_DEPTH
@@ -223,11 +207,12 @@ end
             end
             numDiverged = d;
         end
-        depth = w
-        
+        w
         % create an image from c and then convert to frame.  Use cmap
-        frame = im2frame(ind2rgb(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)), colormap(flipud(jet(depth-firstDiverge)))));
-%         image(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)));
+        image = ind2rgb(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)), colormap(flipud(jet(w-firstDiverge))));
+        text(10, 10, 'hi', 'Color', 'white')
+        frame = im2frame(image);
+        %         image(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)));
 %         axis image;
 %         colormap(flipud(jet(depth-firstDiverge)));
         if WRITE_VIDEO_TO_FILE & ~DO_IN_PARALLEL
