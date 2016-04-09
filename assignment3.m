@@ -33,13 +33,13 @@
 function frameArray = assignment3
 
 MAX_FRAMES = 10; % you can change this and consider increasing it.
-HEIGHT = 1080;
-WIDTH = 1920;
+HEIGHT = 300;
+WIDTH = 300;
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 10000;
-MAX_FRAMES = 10;
+MAX_FRAMES = 100;
 
-WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
+WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
 
 iterateHandle = @iterate;
@@ -111,7 +111,11 @@ path = [
 %profile points to get information on depth
 depthProfile = zeros(m, 2);
 for frameNum = 1:m
-    [~, depth] = iterate(frameNum, path(frameNum, :));
+    [frame, depth] = iterate(frameNum, [path(frameNum, :) 0]);
+    figure
+    [s, map]=frame2im(frame);
+    image(s)
+    axis image
     depthProfile(frameNum, :) = [path(frameNum, 3) depth];
 end
 
@@ -185,6 +189,13 @@ end
         centreX = window(1); 
         centreY = window(2); 
         domain = 1/window(3);
+        if ~window(4)
+            depth = MAX_DEPTH;
+            doDynamic = 1;
+        else 
+            depth = window(4);
+            doDynamic = 0;
+        end
         range = domain*HEIGHT/WIDTH;
         x = linspace(centreX - domain, centreX + domain, WIDTH);
         %you can modify the aspect ratio if you want.
@@ -208,21 +219,19 @@ end
         
         % Here is the Mandelbrot iteration.
         c(abs(z) < 2) = 1;
-        endVal = 1;%0.000001*HEIGHT*WIDTH; %set termination condition to be when 0.03% of total pixel number 
+        endVal = 1;
         numDiverged = 0; %hold number of pixels that diverged in the previous iteration
         firstDiverge = 0; %holds the iteration number for when the first pixel diverged
         %don't show warning from mex invocation.
         WarningOff
-        for w = 2:MAX_DEPTH
+        for w = 2:depth
             [z,c,d] = mandelbrot_step(z,c,z0,w);
             if d ~= 0 && firstDiverge == 0 %identify the first diverged pixel
               firstDiverge = w;
-%             elseif d < endVal && d < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
-%               break
-%             end
-            elseif d <= 5 && d >= 1
-                break
+            elseif doDynamic && d < endVal && d < numDiverged 
+              break
             end
+            numDiverged = d;
         end
         depth = w
         % create an image from c and then convert to frame.  Use cmap
