@@ -34,12 +34,12 @@ function frameArray = assignment3
 
 MAX_FRAMES = 10; % you can change this and consider increasing it.
 HEIGHT = 800;
-WIDTH = 1000;
+WIDTH = 800;
 %RESOLUTION = 512; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 5000;
 
-WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
+WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
 
 DISTANCE = 2; % total panning distance
@@ -56,6 +56,28 @@ end
 if WRITE_VIDEO_TO_FILE
     openVideoFile
 end
+
+%1319 440 17592186044416
+% figure
+% for k = 1:50
+%     HEIGHT = k*10+100;
+%     WIDTH = k*10+100;
+%     zoom = 2^k;
+%     frameArray(k) = iterate(k, [-1.5 0 zoom]);
+%     img = frame2im(frameArray(k));
+%     image(img)
+%     drawnow
+%     %pixelated = length(diff(img(HEIGHT/2, :))==0)/HEIGHT
+% %     if pixelated > 3
+% %         break
+% %     end
+% end
+% disp([num2str(pixelated), ' ' num2str(HEIGHT), ' ' ,  num2str(zoom)])
+% shg; % bring the figure to the top to be seen.
+% movie(frameArray(end),1,FRAMERATE);
+% disp('end')
+
+
 %preallocate struct array
 %frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
 
@@ -82,12 +104,12 @@ end
 
 %path = [-0.75625 -0.125 12; -0.75125 -0.125 100; -0.7500556641395 -0.01285937583185 1765.5173];
 %path=[-2 0.5 1; -1.9 0.4 2; -1.8 0.3 4; -1.7 0.2 7;  -1.6 0 11;]
-% path = [
-%             -1.7859375 0.00015625 1371.4286;
-%             -1.7864322699547 4.88313982295e-8 113988.87;
-%             -1.78646422796135 2.5770725876025e-7 552407.61;
-%         ];
-path = [-1.5 0 1; -1.5 0 5000000000000];
+path = [
+            -1.7859375 0.00015625 1371.4286;
+            -1.7864322699547 4.88313982295e-8 113988.87;
+            -1.78646422796135 2.5770725876025e-7 552407.61;
+        ];
+%path = [-1.5 0 1; -1.5 0 20000000000000];
 [m,~]=size(path);
 interpLoc = linspace(1, m, 100);
 interpType = 'pchip';
@@ -99,21 +121,18 @@ full_path
 [m,~]=size(full_path);
 MAX_FRAMES = m;
 
-zoomMap = zeros(1, 2);
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
         %evaluate function iterate with handle iterateHandle
-        [frameArray(frameNum) current] = feval(iterateHandle, frameNum, full_path(frameNum, :), zoomMap);
+        frameArray(frameNum) = feval(iterateHandle, frameNum, full_path(frameNum, :));
     end
 else
     for frameNum = 1:MAX_FRAMES
         if WRITE_VIDEO_TO_FILE
             %frame has already been written in this case
-            [recZoom, useZoom] = probableDepth(full_path(frameNum, 3))
-            iterate(frameNum, full_path(frameNum, :), zoomMap);
+            iterate(frameNum, full_path(frameNum, :));
         else
-            [recZoom, useZoom] = probableDepth(full_path(frameNum, 3))
-            frameArray(frameNum) = iterate(frameNum, full_path(frameNum, :), zoomMap);
+            frameArray(frameNum) = iterate(frameNum, full_path(frameNum, :));
         end
     end
 end
@@ -131,15 +150,6 @@ else
     shg; % bring the figure to the top to be seen.
     movie(frameArray,1,FRAMERATE);
 end
-   
-    function [probZoom, exists] = probableDepth(zoom, zoomMap)
-        if zoom > max(zoomMap(:,1))
-            exists = 0;
-        else
-            probZoom = interp1(zoomMap(:,1), zoomMap(:,2), zoom);
-            exists = 1;
-        end
-    end
 
     function startClusterIfNeeded
         myCluster = parcluster('local');
@@ -149,7 +159,7 @@ end
             PHYSICAL_CORES = feature('numCores');
             LOGICAL_PER_PHYSICAL = 2; % "hyperthreads" per physical core
             NUM_WORKERS = (LOGICAL_PER_PHYSICAL + 1) * PHYSICAL_CORES
-            myCluster.NumWorkers = 2;
+            myCluster.NumWorkers = NUM_WORKERS;
             saveProfile(myCluster);
             disp('This may take a couple minutes when needed!')
             tic
@@ -166,7 +176,7 @@ end
         open(vidObj);
     end
 
-    function [frame, lastZoom] = iterate (frameNum, window, lastZoom)
+    function frame = iterate (frameNum, window)
         centreX = window(1); 
         centreY = window(2); 
         domain = 1/window(3);
@@ -179,7 +189,7 @@ end
         
         % Create the two-dimensional complex grid using meshgrid
         [X,Y] = meshgrid(x,y);
-        z0 = X + i*Y;
+        z0 = X + 1i*Y;
         
         % Initialize the iterates and counts arrays.
         z = z0;
@@ -200,12 +210,14 @@ end
             [z,c,d] = mandelbrot_step(z,c,z0,w);
             if d ~= 0 && firstDiverge == 0 %identify the first diverged pixel
               firstDiverge = w;
-            elseif d < endVal && d < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
-              break
+%             elseif d < endVal && d < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
+%               break
+%             end
+            elseif d <= 5 && d >= 1
+                break
             end
-            numDiverged = d;
         end
-        lastZoom = w
+        w
         % create an image from c and then convert to frame.  Use cmap
         image = ind2rgb(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)), colormap(flipud(jet(w-firstDiverge))));
         text(10, 10, 'hi', 'Color', 'white')
