@@ -33,17 +33,14 @@
 function frameArray = assignment3
 
 MAX_FRAMES = 10; % you can change this and consider increasing it.
-HEIGHT = 800;
-WIDTH = 800;
+HEIGHT = 1080;
+WIDTH = 1920;
 %RESOLUTION = 512; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
-MAX_DEPTH = 5000;
+MAX_DEPTH = 10000;
 
-WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
-DO_IN_PARALLEL = false; %change this as you like (true/false)
-
-DISTANCE = 2; % total panning distance
-STEP = DISTANCE/MAX_FRAMES; %how much to pan per step.
+WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
+DO_IN_PARALLEL = true; %change this as you like (true/false)
 
 iterateHandle = @iterate;
 
@@ -78,8 +75,7 @@ end
 % disp('end')
 
 
-%preallocate struct array
-%frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
+
 
 %iterate (1, [0.443884460063589 0.3697499694058715 6.051697594976703e-06])
 
@@ -111,7 +107,7 @@ path = [
         ];
 %path = [-1.5 0 1; -1.5 0 20000000000000];
 [m,~]=size(path);
-interpLoc = linspace(1, m, 100);
+interpLoc = linspace(1, m, 10);
 interpType = 'pchip';
 full_path = zeros(length(interpLoc), 3);
 full_path(:, 1) = interp1(path(:,1), interpLoc, interpType);
@@ -120,6 +116,9 @@ full_path(:, 3) = interp1(path(:,3), interpLoc, interpType);
 full_path
 [m,~]=size(full_path);
 MAX_FRAMES = m;
+
+%preallocate struct array
+frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
 
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
@@ -158,7 +157,7 @@ end
         elseif ~length(myCluster.Jobs) | ~strcmp(myCluster.Jobs.State, 'running')
             PHYSICAL_CORES = feature('numCores');
             LOGICAL_PER_PHYSICAL = 2; % "hyperthreads" per physical core
-            NUM_WORKERS = (LOGICAL_PER_PHYSICAL + 1) * PHYSICAL_CORES
+            NUM_WORKERS = (LOGICAL_PER_PHYSICAL + 1) * PHYSICAL_CORES-2
             myCluster.NumWorkers = NUM_WORKERS;
             saveProfile(myCluster);
             disp('This may take a couple minutes when needed!')
