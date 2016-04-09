@@ -33,14 +33,21 @@
 function frameArray = assignment3
 
 MAX_FRAMES = 10; % you can change this and consider increasing it.
-HEIGHT = 300;
-WIDTH = 500;
+HEIGHT = 800;
+WIDTH = 800;
 %RESOLUTION = 512; % you can change this and consider increasing it.
 FRAMERATE = 30; % you can change this if you want.
-MAX_DEPTH = 10000;
+MAX_DEPTH = 5000;
 
-WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
+WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
+
+DISTANCE = 2; % total panning distance
+STEP = DISTANCE/MAX_FRAMES; %how much to pan per step.
+
+iterateHandle = @iterate;
+
+tic % begin timing
 
 if DO_IN_PARALLEL
     startClusterIfNeeded
@@ -49,6 +56,28 @@ end
 if WRITE_VIDEO_TO_FILE
     openVideoFile
 end
+
+%1319 440 17592186044416
+% figure
+% for k = 1:50
+%     HEIGHT = k*10+100;
+%     WIDTH = k*10+100;
+%     zoom = 2^k;
+%     frameArray(k) = iterate(k, [-1.5 0 zoom]);
+%     img = frame2im(frameArray(k));
+%     image(img)
+%     drawnow
+%     %pixelated = length(diff(img(HEIGHT/2, :))==0)/HEIGHT
+% %     if pixelated > 3
+% %         break
+% %     end
+% end
+% disp([num2str(pixelated), ' ' num2str(HEIGHT), ' ' ,  num2str(zoom)])
+% shg; % bring the figure to the top to be seen.
+% movie(frameArray(end),1,FRAMERATE);
+% disp('end')
+
+
 %preallocate struct array
 %frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
 
@@ -72,12 +101,6 @@ end
 
 %[0.28693186889504513 0.014286693904085048 1.575051189163648e+03] %spirals
 %[0.2869424733977535 0.01427493092629105  1.870274700000000e+06] %outtro
-DISTANCE = 2; % total panning distance
-STEP = DISTANCE/MAX_FRAMES; %how much to pan per step.
-
-iterateHandle = @iterate;
-
-tic % begin timing
 
 %path = [-0.75625 -0.125 12; -0.75125 -0.125 100; -0.7500556641395 -0.01285937583185 1765.5173];
 %path=[-2 0.5 1; -1.9 0.4 2; -1.8 0.3 4; -1.7 0.2 7;  -1.6 0 11;]
@@ -86,44 +109,30 @@ path = [
             -1.7864322699547 4.88313982295e-8 113988.87;
             -1.78646422796135 2.5770725876025e-7 552407.61;
         ];
-    
-numFrames = 7;
-
+%path = [-1.5 0 1; -1.5 0 20000000000000];
+[m,~]=size(path);
+interpLoc = linspace(1, m, 100);
 interpType = 'pchip';
-full_path = path;
-prev_path = path;
-for k = 1:numFrames
-    [m,~]=size(full_path);
-    newM = m*2-1;
-    full_path = zeros(newM, 3);
-    full_path(1:2:newM, :) = prev_path(1:m, :);
-    full_path(2:2:newM, 1) = interp1(prev_path(:,1), 1.5:1:m, interpType);
-    full_path(2:2:newM, 2) = interp1(prev_path(:,2), 1.5:1:m, interpType);
-    full_path(2:2:newM, 3) = interp1(prev_path(:,3), 1.5:1:m, interpType);
-    prev_path = full_path;
-    
-    clf
-    hold on
-    plot(path)
-    plot(full_path)
-    legend('path - real', 'path - img', 'path-zoom', 'full-real', 'full-img', 'full-zoom')
-end
+full_path = zeros(length(interpLoc), 3);
+full_path(:, 1) = interp1(path(:,1), interpLoc, interpType);
+full_path(:, 2) = interp1(path(:,2), interpLoc, interpType);
+full_path(:, 3) = interp1(path(:,3), interpLoc, interpType);
+full_path
 [m,~]=size(full_path);
 MAX_FRAMES = m;
-zoomMap = ones(1, 2);
-        
+
 if DO_IN_PARALLEL
     parfor frameNum = 1:MAX_FRAMES
         %evaluate function iterate with handle iterateHandle
-        frameArray(frameNum) = feval(iterateHandle, frameNum, full_path(frameNum, :), zoomMap);
+        frameArray(frameNum) = feval(iterateHandle, frameNum, full_path(frameNum, :));
     end
 else
     for frameNum = 1:MAX_FRAMES
         if WRITE_VIDEO_TO_FILE
             %frame has already been written in this case
-            iterate(frameNum, full_path(frameNum, :), zoomMap);
+            iterate(frameNum, full_path(frameNum, :));
         else
-            frameArray(frameNum) = iterate(frameNum, full_path(frameNum, :), zoomMap);
+            frameArray(frameNum) = iterate(frameNum, full_path(frameNum, :));
         end
     end
 end
@@ -141,7 +150,6 @@ else
     shg; % bring the figure to the top to be seen.
     movie(frameArray,1,FRAMERATE);
 end
-   
 
     function startClusterIfNeeded
         myCluster = parcluster('local');
@@ -151,7 +159,7 @@ end
             PHYSICAL_CORES = feature('numCores');
             LOGICAL_PER_PHYSICAL = 2; % "hyperthreads" per physical core
             NUM_WORKERS = (LOGICAL_PER_PHYSICAL + 1) * PHYSICAL_CORES
-            myCluster.NumWorkers = 2;
+            myCluster.NumWorkers = NUM_WORKERS;
             saveProfile(myCluster);
             disp('This may take a couple minutes when needed!')
             tic
@@ -168,10 +176,10 @@ end
         open(vidObj);
     end
 
-    function [frame, zoomMap] = iterate (frameNum, window, zoomMap)
+    function frame = iterate (frameNum, window)
         centreX = window(1); 
         centreY = window(2); 
-        domain = 1/window(3); 
+        domain = 1/window(3);
         range = domain*HEIGHT/WIDTH;
         x = linspace(centreX - domain, centreX + domain, WIDTH);
         %you can modify the aspect ratio if you want.
@@ -181,7 +189,7 @@ end
         
         % Create the two-dimensional complex grid using meshgrid
         [X,Y] = meshgrid(x,y);
-        z0 = X + i*Y;
+        z0 = X + 1i*Y;
         
         % Initialize the iterates and counts arrays.
         z = z0;
@@ -202,10 +210,12 @@ end
             [z,c,d] = mandelbrot_step(z,c,z0,w);
             if d ~= 0 && firstDiverge == 0 %identify the first diverged pixel
               firstDiverge = w;
-            elseif d < endVal && d < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
-              break
+%             elseif d < endVal && d < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
+%               break
+%             end
+            elseif d <= 5 && d >= 1
+                break
             end
-            numDiverged = d;
         end
         w
         % create an image from c and then convert to frame.  Use cmap
