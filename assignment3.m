@@ -190,6 +190,8 @@ end
         [X,Y] = meshgrid(x,y);
         z0 = X + 1i*Y;
         
+        clear z0 X Y x y range domain centerX centerY
+        
         % Initialize the iterates and counts arrays.
         z = z0;
         z(1,1) = z0(1,1); % needed for mex, assumedly to make z elements separate
@@ -219,7 +221,6 @@ end
         w
         % create an image from c and then convert to frame.  Use cmap
         image = ind2rgb(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)), colormap(flipud(jet(w-firstDiverge))));
-        text(10, 10, 'hi', 'Color', 'white')
         frame = im2frame(image);
         %         image(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)));
 %         axis image;
@@ -228,6 +229,7 @@ end
             writeVideo(vidObj, frame);
         end
         disp(['frame=' num2str(frameNum)]);
+        clear image w c firstDiverge z d numDiverged endVal
     end
 end
 
