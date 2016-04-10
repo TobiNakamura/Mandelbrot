@@ -129,7 +129,6 @@ for k=1:m
     end
 end
 modPath
-
 % [~, sorting] = sort(depthSample(:,1))
 % sorted = depthSample(sorting, :)
 % k=1;
@@ -152,14 +151,14 @@ modPath
 % end
 % depthProfile
 %interpolate to find path though which camera will travel
-[m,~]=size(modPath);
-interpLoc = linspace(1, m, MAX_FRAMES);
+[modPathLength,~]=size(modPath);
+interpLoc = linspace(1, modPathLength, MAX_FRAMES);
 interpType = 'pchip';
 full_path = zeros(length(interpLoc), 4);
 full_path(:, 1) = interp1(modPath(:,1), interpLoc, interpType); %real axis
 full_path(:, 2) = interp1(modPath(:,2), interpLoc, interpType); %img axis
 full_path(:, 3) = interp1(modPath(:,3), interpLoc, interpType); %zoom
-full_path(:, 4) = interp1(depthSample(:,2), interpLoc, interpType); %depth
+full_path(:, 4) = interp1(depthSample(:,2), linspace(1,m,MAX_FRAMES), 'nearest'); %depth
 full_path
 %preallocate struct array
 frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
