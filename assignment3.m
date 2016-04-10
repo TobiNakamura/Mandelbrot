@@ -30,7 +30,7 @@ HEIGHT = 300;
 WIDTH = 300;
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 10000;
-MAX_FRAMES = 100;
+MAX_FRAMES = 1000;
 
 WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
@@ -96,21 +96,10 @@ path = [
             0.250097526924625 2.741340674115e-7 107107.31;
             0.2500010 0 10000000;
 ];
-stops = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
-temp = path;
-path = zeros(length(stops)*3, 3);
-path(1:3:51, :) = temp(1:17, :);
-path(2:3:51, :) = temp(1:17, :);
-path(3:3:51, :) = temp(1:17, :);
-path
-[m,~]=size(path);
-%path = [-1.5 0 1; -1.5 0 20000000000000];
-
-%perform depth interpolation as a function of frame and not as function of
-%zoom
 
 %profile points to get information on depth
 close all
+[m,~]=size(path);
 depthSample = zeros(m, 2);
 depthProfile = zeros(m, 2);
 for frameNum = 1:m
@@ -121,6 +110,26 @@ for frameNum = 1:m
     axis image
     depthSample(frameNum, :) = [path(frameNum, 3) depth];
 end
+
+
+
+stops = [1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 1];
+temp = path;
+modPath = zeros(m, 3);
+newIndex  = 1;
+for k=1:m
+    if stops(k)
+        modPath(newIndex, :) = temp(k, :);
+        modPath(newIndex+1, :) = temp(k, :);
+        modPath(newIndex+2, :) = temp(k, :);
+        newIndex = newIndex+3;
+    else
+        modPath(newIndex, :) = temp(k, :);
+        newIndex=newIndex+1;
+    end
+end
+modPath
+
 % [~, sorting] = sort(depthSample(:,1))
 % sorted = depthSample(sorting, :)
 % k=1;
@@ -143,12 +152,13 @@ end
 % end
 % depthProfile
 %interpolate to find path though which camera will travel
+[m,~]=size(modPath);
 interpLoc = linspace(1, m, MAX_FRAMES);
 interpType = 'pchip';
 full_path = zeros(length(interpLoc), 4);
-full_path(:, 1) = interp1(path(:,1), interpLoc, interpType); %real axis
-full_path(:, 2) = interp1(path(:,2), interpLoc, interpType); %img axis
-full_path(:, 3) = interp1(path(:,3), interpLoc, interpType); %zoom
+full_path(:, 1) = interp1(modPath(:,1), interpLoc, interpType); %real axis
+full_path(:, 2) = interp1(modPath(:,2), interpLoc, interpType); %img axis
+full_path(:, 3) = interp1(modPath(:,3), interpLoc, interpType); %zoom
 full_path(:, 4) = interp1(depthSample(:,2), interpLoc, interpType); %depth
 full_path
 %preallocate struct array
