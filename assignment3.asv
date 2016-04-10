@@ -104,6 +104,17 @@ path = [
             -1.7859375 0.00015625 1371.4286;
             -1.7864322699547 4.88313982295e-8 113988.87;
             -1.78646422796135 2.5770725876025e-7 552407.61;
+            -1.78530012796135 2.5770122876025e-7 1007.61;
+            -1.783643981238 2.5770122875e-7 14225.082;
+            -1.78130012796135 2.5770122876025e-7 107.61;
+            -1.7704391485 0.003078503217445 339.82105;
+            -1.7687102973885 0.001165731774946073 1294.5564;
+            -1.768604083399 0.0014119551144625 6610.5008;
+            -1.768555804313 0.00078915490274495 17260.752;
+            -1.768550976404 0.00067811300453175 25891.128;
+            -1.768526836861 0.00017601050826355 25891.128;
+            -1.6 0 10;
+            -1.75 0 10000;
         ];
 [m,~]=size(path);
 %path = [-1.5 0 1; -1.5 0 20000000000000];
@@ -113,8 +124,9 @@ depthProfile = zeros(m, 2);
 for frameNum = 1:m
     [frame, depth] = iterate(frameNum, [path(frameNum, :) 0]);
     figure
-    frame2im(frame)
-    axis 
+    [s, map]=frame2im(frame);
+    image(s)
+    axis image
     depthProfile(frameNum, :) = [path(frameNum, 3) depth];
 end
 
@@ -218,7 +230,7 @@ end
         
         % Here is the Mandelbrot iteration.
         c(abs(z) < 2) = 1;
-        endVal = 1;%0.000001*HEIGHT*WIDTH; %set termination condition to be when 0.03% of total pixel number 
+        endVal = 1;
         numDiverged = 0; %hold number of pixels that diverged in the previous iteration
         firstDiverge = 0; %holds the iteration number for when the first pixel diverged
         %don't show warning from mex invocation.
@@ -227,12 +239,10 @@ end
             [z,c,d] = mandelbrot_step(z,c,z0,w);
             if d ~= 0 && firstDiverge == 0 %identify the first diverged pixel
               firstDiverge = w;
-%             elseif d < endVal && d < numDiverged %when less then 0.03% of total pixels diverged in a single iteration and when the total number of pixels diverged per iteration is decreasing
-%               break
-%             end
-            elseif doDynamic && d <= 5 && d >= 1
-                break
+            elseif doDynamic && d < endVal && d < numDiverged 
+              break
             end
+            numDiverged = d;
         end
         depth = w
         % create an image from c and then convert to frame.  Use cmap
