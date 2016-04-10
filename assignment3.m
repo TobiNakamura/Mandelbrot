@@ -1,8 +1,3 @@
-%todo:
-%algorithm for going from one locations to another with minimal rendering
-
-
-
 % ENSC180-Assignment3
 
 % Student Name 1: student1
@@ -37,7 +32,7 @@ FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 10000;
 MAX_FRAMES = 100;
 
-WRITE_VIDEO_TO_FILE = false; % change this as you like (true/false)
+WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
 DO_IN_PARALLEL = false; %change this as you like (true/false)
 
 iterateHandle = @iterate;
@@ -73,21 +68,8 @@ end
 % disp('end')
 
 
-
-
-%iterate (1, [0.443884460063589 0.3697499694058715 6.051697594976703e-06])
-
-%tobi's valley - converges to pi
-%[-0.75625 -0.125 12]
-%[-0.7501127115442 -0.01264794877738 3068.931]
-
-%zoom
-%[0.4435625 0.3739375 2.608695699999698e+02]
-%[0.443884460063589 0.3697499694058715 1.652428900000000e+05]
-
 %self similarity along r=0
 %[-1.81010002531922 -1.8084266939974e-8 5.924571299999999e+06]
-
 %[-1.7859375 0.00015625 1371.4286]
 %[-1.7864322699547 4.88313982295e-8 113988.87]
 %[-1.78646422796135 2.5770725876025e-7 552407.61]
@@ -95,9 +77,6 @@ end
 
 %[0.28693186889504513 0.014286693904085048 1.575051189163648e+03] %spirals
 %[0.2869424733977535 0.01427493092629105  1.870274700000000e+06] %outtro
-
-%path = [-0.75625 -0.125 12; -0.75125 -0.125 100; -0.7500556641395 -0.01285937583185 1765.5173];
-%path=[-2 0.5 1; -1.9 0.4 2; -1.8 0.3 4; -1.7 0.2 7;  -1.6 0 11;]
 path = [
             -0.5 0 1
             -1.7859375 0.00015625 1371.4286;
@@ -117,21 +96,31 @@ path = [
             0.250097526924625 2.741340674115e-7 107107.31;
             0.2500010 0 10000000;
 ];
+stops = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+temp = path;
+path = zeros(length(stops)*3, 3);
+path(1:3:51, :) = temp(1:17, :);
+path(2:3:51, :) = temp(1:17, :);
+path(3:3:51, :) = temp(1:17, :);
+path
 [m,~]=size(path);
 %path = [-1.5 0 1; -1.5 0 20000000000000];
 
+%perform depth interpolation as a function of frame and not as function of
+%zoom
+
 %profile points to get information on depth
-% close all
-% depthSample = zeros(m, 2);
-% depthProfile = zeros(m, 2);
-% for frameNum = 1:m
-%     [frame, depth] = iterate(frameNum, [path(frameNum, :) 0]);
-%     figure
-%     [s, map]=frame2im(frame);
-%     image(s)
-%     axis image
-%     depthSample(frameNum, :) = [path(frameNum, 3) depth];
-% end
+close all
+depthSample = zeros(m, 2);
+depthProfile = zeros(m, 2);
+for frameNum = 1:m
+    [frame, depth] = iterate(frameNum, [path(frameNum, :) 0]);
+    figure
+    [s, map]=frame2im(frame);
+    image(s)
+    axis image
+    depthSample(frameNum, :) = [path(frameNum, 3) depth];
+end
 % [~, sorting] = sort(depthSample(:,1))
 % sorted = depthSample(sorting, :)
 % k=1;
@@ -157,12 +146,11 @@ path = [
 interpLoc = linspace(1, m, MAX_FRAMES);
 interpType = 'pchip';
 full_path = zeros(length(interpLoc), 4);
-full_path(:, 1) = interp1(path(:,1), interpLoc, interpType);
-full_path(:, 2) = interp1(path(:,2), interpLoc, interpType);
-full_path(:, 3) = interp1(path(:,3), interpLoc, interpType);
-full_path(:, 4) = zeros(length(interpLoc), 1);
-%full_path(:, 4) = interp1(depthProfile(:,1),depthProfile(:,2), full_path(:, 3), interpType)
-
+full_path(:, 1) = interp1(path(:,1), interpLoc, interpType); %real axis
+full_path(:, 2) = interp1(path(:,2), interpLoc, interpType); %img axis
+full_path(:, 3) = interp1(path(:,3), interpLoc, interpType); %zoom
+full_path(:, 4) = interp1(depthSample(:,2), interpLoc, interpType); %depth
+full_path
 %preallocate struct array
 frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
 
