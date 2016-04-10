@@ -1,21 +1,21 @@
 % ENSC180-Assignment3
 
-% Student Name 1: student1
+% Student Name 1: Nicole 
 
 % Student 1 #: 123456781
 
 % Student 1 userid (email): stu1 (stu1@sfu.ca)
 
-% Student Name 2: student2
+% Student Name 2: Tobi Shires Nakamura
 
 % Student 2 #: 123456782
 
-% Student 2 userid (email): stu2 (stu2@sfu.ca)
+% Student 2 userid (email): tshiresn (tshiresn@sfu.ca)
 
 % Below, edit to list any people who helped you with the assignment, 
 %      or put ‘none’ if nobody helped (the two of) you.
 
-% Helpers: _everybody helped us/me with the assignment (list names or put ‘none’)__
+% Helpers: Brenden
 
 % Instructions:
 % * Put your name(s), student number(s), userid(s) in the above section.
@@ -30,10 +30,10 @@ HEIGHT = 300;
 WIDTH = 300;
 FRAMERATE = 30; % you can change this if you want.
 MAX_DEPTH = 10000;
-MAX_FRAMES = 1000;
+MAX_FRAMES = 500;
 
 WRITE_VIDEO_TO_FILE = true; % change this as you like (true/false)
-DO_IN_PARALLEL = false; %change this as you like (true/false)
+DO_IN_PARALLEL = true; %change this as you like (true/false)
 
 iterateHandle = @iterate;
 
@@ -47,58 +47,43 @@ if WRITE_VIDEO_TO_FILE
     openVideoFile
 end
 
-%1319 440 17592186044416
-% figure
-% for k = 1:50
-%     HEIGHT = k*10+100;
-%     WIDTH = k*10+100;
-%     zoom = 2^k;
-%     frameArray(k) = iterate(k, [-1.5 0 zoom]);
-%     img = frame2im(frameArray(k));
-%     image(img)
-%     drawnow
-%     %pixelated = length(diff(img(HEIGHT/2, :))==0)/HEIGHT
-% %     if pixelated > 3
-% %         break
-% %     end
-% end
-% disp([num2str(pixelated), ' ' num2str(HEIGHT), ' ' ,  num2str(zoom)])
-% shg; % bring the figure to the top to be seen.
-% movie(frameArray(end),1,FRAMERATE);
-% disp('end')
-
-
-%self similarity along r=0
-%[-1.81010002531922 -1.8084266939974e-8 5.924571299999999e+06]
-%[-1.7859375 0.00015625 1371.4286]
-%[-1.7864322699547 4.88313982295e-8 113988.87]
-%[-1.78646422796135 2.5770725876025e-7 552407.61]
-
-
-%[0.28693186889504513 0.014286693904085048 1.575051189163648e+03] %spirals
-%[0.2869424733977535 0.01427493092629105  1.870274700000000e+06] %outtro
 path = [
-            -0.5 0 1;
-            -1.5 0 5;
-            -1.7859375 0.00015625 1371.4286;
-            -1.7859375 0.00015625 1271.4286;
-            -1.7864322699547 4.88313982295e-8 7000;
-            -1.7864322699547 4.88313982295e-8 113988.87;
-            -1.78646422796135 2.5770725876025e-7 552407.61;
-            -1.78530012796135 2.5770122876025e-7 1007.61;
-            -1.783643981238 2.5770122875e-7 14225.082;
-            -1.78130012796135 2.5770122876025e-7 107.61;
-            -1.6 0 10;
-            -1.75 0 100;
-            -1.75 0 10000;
-            -1.65 0 100;
-            -1.5 0 10;
-            0.5 0 1;
-            0.4 0 7;
-            0.308035714285 -0.0035714285715 20.740741;
-            0.254034459428 0.00020912383471 409.8342;
-            0.2514030599505 0 7000;
-            0.250097526924625 0 7000;
+            -0.5 0 1 1;
+            -1.5 -0.175 4.8979592 0;
+            -1.7 -0.01 10 0;
+            -1.785 0 500 0;
+            -1.7859375 0.00015625 1371.4286 1;
+            -1.7859375 0.00015625 5000 0;
+            -1.7864322699547 0 7000 0;
+            -1.7864322699547 0 113988.87 1;
+            -1.78645422796135 0 50000 0;
+            -1.78646422796135 0 552407.61 1;
+            -1.78646422796135 0 7000 0;
+            -1.78636422796135 0 5000 0;
+            -1.78530012796135 2.5770122876025e-7 1007.61 0;
+            -1.78430012796135 2.5770122876025e-7 5000 0;
+            -1.783643981238 2.5770122875e-7 14225.082 1;
+            -1.783644981238 2.5770122875e-7 1000 0;
+            -1.78130012796135 2.5770122876025e-7 107.61 0;
+            -1.6 0 10 0;
+            -1.78 0 50  1;
+            -1.75 0 100 0;
+            -1.75 0 10000 1;
+            -1.75 0 500 0;
+            -1.74 0 100 0;
+            -1.5 0 10 0;
+            0 0 1 1;
+            0.4 0 7 0;
+            0.308035714285 -0.0035714285715 20.740741 0;
+            0.254034459428 0.00020912383471 409.8342 0;
+            0.2514030599505 0 7000 0;
+            0.250097526924625 0 7000 1;
+            0.254034459428 0.00020912383471 409.8342 0;
+            0.30125 -0.025 88.888889 0;
+            0.395 -0.174375 23.076923 0;
+            0.38125 -0.32375 11.881188 0;
+            0.2075 -0.60625 5.0526316 0;
+            -0.5 0 0.5 1;
 ];
 
 %profile points to get information on depth
@@ -107,7 +92,7 @@ close all
 depthSample = zeros(m, 2);
 depthProfile = zeros(m, 2);
 for frameNum = 1:m
-    [frame, depth] = iterate(frameNum, [path(frameNum, :) 0]);
+    [frame, depth] = iterate(frameNum, [path(frameNum, 1:3) 0]);
     figure
     [s, map]=frame2im(frame);
     image(s)
@@ -115,20 +100,16 @@ for frameNum = 1:m
     depthSample(frameNum, :) = [path(frameNum, 3) depth];
 end
 
-
-
-stops = [1 0 1 0 0 1 1 1 1 1 1 0 1 0 0 0 0 0 0 0 0 0 1];
-temp = path;
 modPath = zeros(m, 3);
 newIndex  = 1;
 for k=1:m
-    if stops(k)
-        modPath(newIndex, :) = temp(k, :);
-        modPath(newIndex+1, :) = temp(k, :);
-        modPath(newIndex+2, :) = temp(k, :);
+    if path(k, 4)
+        modPath(newIndex, :) = path(k, 1:3);
+        modPath(newIndex+1, :) = path(k, 1:3);
+        modPath(newIndex+2, :) = path(k, 1:3);
         newIndex = newIndex+3;
     else
-        modPath(newIndex, :) = temp(k, :);
+        modPath(newIndex, :) = path(k, 1:3);
         newIndex=newIndex+1;
     end
 end
@@ -162,7 +143,7 @@ full_path = zeros(length(interpLoc), 4);
 full_path(:, 1) = interp1(modPath(:,1), interpLoc, interpType); %real axis
 full_path(:, 2) = interp1(modPath(:,2), interpLoc, interpType); %img axis
 full_path(:, 3) = interp1(modPath(:,3), interpLoc, interpType); %zoom
-full_path(:, 4) = interp1(depthSample(:,2), linspace(1,m,MAX_FRAMES), 'nearest'); %depth
+full_path(:, 4) = interp1(depthSample(:,2), linspace(1,m,MAX_FRAMES), interpType); %depth
 full_path
 %preallocate struct array
 frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
@@ -230,6 +211,8 @@ end
             depth = window(4);
             doDynamic = 0;
         end
+        depth = MAX_DEPTH;
+            doDynamic = 1;
         range = domain*HEIGHT/WIDTH;
         x = linspace(centreX - domain, centreX + domain, WIDTH);
         %you can modify the aspect ratio if you want.
@@ -253,7 +236,7 @@ end
         
         % Here is the Mandelbrot iteration.
         c(abs(z) < 2) = 1;
-        endVal = 1;
+        endVal = 50;
         numDiverged = 0; %hold number of pixels that diverged in the previous iteration
         firstDiverge = 0; %holds the iteration number for when the first pixel diverged
         %don't show warning from mex invocation.
