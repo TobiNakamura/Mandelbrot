@@ -31,8 +31,6 @@
 % Craig Scratchley, Spring 2016
 
 function frameArray = assignment3
-
-MAX_FRAMES = 10; % you can change this and consider increasing it.
 HEIGHT = 300;
 WIDTH = 300;
 FRAMERATE = 30; % you can change this if you want.
@@ -101,6 +99,7 @@ end
 %path = [-0.75625 -0.125 12; -0.75125 -0.125 100; -0.7500556641395 -0.01285937583185 1765.5173];
 %path=[-2 0.5 1; -1.9 0.4 2; -1.8 0.3 4; -1.7 0.2 7;  -1.6 0 11;]
 path = [
+            -0.5 0 1
             -1.7859375 0.00015625 1371.4286;
             -1.7864322699547 4.88313982295e-8 113988.87;
             -1.78646422796135 2.5770725876025e-7 552407.61;
@@ -122,19 +121,38 @@ path = [
 %path = [-1.5 0 1; -1.5 0 20000000000000];
 
 %profile points to get information on depth
-close all
-depthProfile = zeros(m, 2);
-for frameNum = 1:m
-    [frame, depth] = iterate(frameNum, [path(frameNum, :) 0]);
-    figure
-    [s, map]=frame2im(frame);
-    image(s)
-    axis image
-    depthProfile(frameNum, :) = [path(frameNum, 3) depth];
-end
-
-
-
+% close all
+% depthSample = zeros(m, 2);
+% depthProfile = zeros(m, 2);
+% for frameNum = 1:m
+%     [frame, depth] = iterate(frameNum, [path(frameNum, :) 0]);
+%     figure
+%     [s, map]=frame2im(frame);
+%     image(s)
+%     axis image
+%     depthSample(frameNum, :) = [path(frameNum, 3) depth];
+% end
+% [~, sorting] = sort(depthSample(:,1))
+% sorted = depthSample(sorting, :)
+% k=1;
+% j=1;
+% for k = 2:length(sorting)
+%     if sorted(k, 1) > sorted(k-1, 1)
+%         depthProfile(j, :) = sorted(k, :)
+%        j=j+1;
+%     end
+% end
+% [~, sorting] = sort(depthProfile(:,1))
+% depthProfile = depthProfile(sorting, :)
+% while k <= length(sorting)
+%     searchVal = sorted(k, :);
+%     [row, ~] = find(sorted(:, 1)==searchVal(1));
+%     [~,index]=max(sorted(row, 2));
+%     depthProfile(j, :) = sorted(index+k-1, :);
+%     k = k+length(row);
+%     j=j+1;
+% end
+% depthProfile
 %interpolate to find path though which camera will travel
 interpLoc = linspace(1, m, MAX_FRAMES);
 interpType = 'pchip';
@@ -142,7 +160,8 @@ full_path = zeros(length(interpLoc), 4);
 full_path(:, 1) = interp1(path(:,1), interpLoc, interpType);
 full_path(:, 2) = interp1(path(:,2), interpLoc, interpType);
 full_path(:, 3) = interp1(path(:,3), interpLoc, interpType);
-full_path(:, 4) = interp1(depthProfile(:,1),depthProfile(:,2), full_path(:, 3), interpType)
+full_path(:, 4) = zeros(length(interpLoc), 1);
+%full_path(:, 4) = interp1(depthProfile(:,1),depthProfile(:,2), full_path(:, 3), interpType)
 
 %preallocate struct array
 frameArray=struct('cdata',cell(1,MAX_FRAMES),'colormap',cell(1,MAX_FRAMES));
@@ -249,7 +268,7 @@ end
         end
         depth = w
         % create an image from c and then convert to frame.  Use cmap
-        image = ind2rgb(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)), colormap(flipud(jet(w-firstDiverge))));
+        image = ind2rgb(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)), colormap(flipud(jet(depth-firstDiverge))));
         frame = im2frame(image);
         %         image(c-uint16(firstDiverge*ones(HEIGHT,WIDTH)));
 %         axis image;
